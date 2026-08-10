@@ -65,7 +65,13 @@
             "GotoTriggerPointMoveExact_VFPowerPlateau"
         ],
         "focus": {
-            "Node.Action.Starting": "🚶正在前往激发点附近"
+            "Node.Action.Starting": "🚶正在前往激发点附近",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     },
     "GotoTriggerPointMoveExact_VFPowerPlateau": {
@@ -95,7 +101,13 @@
             "AutoEssenceDispatcher"
         ],
         "focus": {
-            "Node.Action.Starting": "🚶正在前往激发点"
+            "Node.Action.Starting": "🚶正在前往激发点",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     },
     "__GotoTriggerPointNearAnchor_VFPowerPlateau": {

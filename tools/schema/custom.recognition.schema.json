@@ -40,6 +40,7 @@
                 "SellProductSelectBestOperator",
                 "TrialOfSwordmancy.Recognize",
                 "TrialOfSwordmancy.RecognizeAband",
+                "TrialOfSwordmancy.RecognizeDeck",
                 "WeaponInventoryScanRecognition",
                 "SeizeDeliveryJobsFindTargetRecognition",
                 "SeizeDeliveryJobsScanTargetRecognition",
@@ -120,6 +121,40 @@
                 "properties": {
                     "custom_recognition_param": {
                         "$ref": "./components/ims.schema.json#/$defs/ItemQuantitySatisfiedParam"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "ExpressionRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [ "expression" ],
+                        "properties": {
+                            "expression": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "box_node": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "focus_matched_resolved_expression": {
+                                "type": "boolean"
+                            },
+                            "focus_unmatched_resolved_expression": {
+                                "type": "boolean"
+                            }
+                        }
                     }
                 }
             }

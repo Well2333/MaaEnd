@@ -235,6 +235,30 @@ When the target point is on a specific **tier (layered map)**, each tier is a **
 - This is the only thing needed to go to a tier: **a single node with `target` + `target_tier` is enough**. No additional `ZONE` node is needed, no intermediate points need to be added, and no manual coordinate adjustment is required.
 - The field also supports camelCase writing `targetTier`; filling in a non-existent layer name will be logged as a warning and treated as base coordinates.
 
+###### Overlapping Deck Target: `target_deck_y`
+
+The game is three-dimensional, the map is not: a walkway, a bridge and a rooftop can all sit on the same `target`. Without `target_deck_y` the planner treats **every** walkable surface in the target cell as a goal and stops at whichever it reaches first. Stacked surfaces usually belong to the same connected component so nothing fails, and the two-dimensional arrival check passes either way — which makes landing on the wrong deck completely silent.
+
+`target_deck_y` declares which walkable surface the `target` sits on. The value is that surface's **world height**:
+
+```json
+{
+    "action": "NAVMESH",
+    "target": [
+        358.8,
+        238.8
+    ],
+    "target_deck_y": 265.37
+}
+```
+
+- Read the number from the MapNavigator GUI: click the target and the sidebar lists the overlapping decks; selecting one highlights that deck on the canvas, and the "Select" button writes the value into the field. Do not estimate it by hand.
+- A deck matches when it is the nearest surface and within 2px (measured spacing between adjacent decks is 8–9px). When nothing matches, the route fails with "target deck unreachable" — it does not fall back to the cell-level search and is not absorbed by the blind-walk fallback. Failing loudly beats silently walking onto another deck.
+- Points with a single surface do not need it; the GUI hides the list when there is no overlap.
+- The field also supports camelCase writing `targetDeckY`, and can be combined with `target_tier`.
+
+A declaration applies to its own waypoint only: **it pins which deck that leg stops on, while which deck the start stands on is worked out by the planner from the start's own height**. A leg can therefore go from a rooftop down to a walkway or the other way round with no declaration on the start side — and re-planning starts from the live two-dimensional localization, which has no deck to begin with.
+
 #### Return Behavior
 
 `MapNavigateAction` is an Action node; it does not have a stable structured recognition output like Recognition. Its results are mainly reflected as:
@@ -342,18 +366,6 @@ Non-coordinate control nodes like `HEADING` and semantic pathfinding nodes like 
 
 ### Running Method
 
-#### 1) Standard Python
-
-```powershell
-cd tools\MapNavigator
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python main.py
-```
-
-#### 2) uv
-
 ```powershell
 cd tools\MapNavigator
 uv run main.py
@@ -364,9 +376,9 @@ uv run main.py
 Before starting to record, please confirm:
 
 1. The project development environment has been configured according to the development manual, especially that `install/agent/cpp-algo.exe` and `install/maafw` are usable.
-2. The Python dependencies `maafw`, `Pillow`, and `pynput` are installed.
+2. uv is installed; `uv run main.py` prepares Python and dependencies automatically from the PEP 723 metadata.
 3. **Windows**: The tool needs to be run with **administrator privileges**; otherwise, the G/X hotkeys may not be captured by the system when the game (an administrator process) is in the foreground. `main.py` will automatically detect this and prompt a UAC elevation request at startup.
-4. **macOS**: On the first run, you need to authorize the current terminal or Python interpreter in **System Settings → Privacy & Security → Input Monitoring**, otherwise global hotkeys will not work.
+4. **macOS**: On the first run, authorize the current terminal or the uv-managed Python interpreter in **System Settings → Privacy & Security → Input Monitoring**; otherwise, global hotkeys will not work.
 5. If using `Win32` connection, the game is already started, and the window is **not minimized**.
 6. If using `ADB` connection, `adb` is available, and the target emulator/device appears in the device list.
 7. The current character is standing near the starting point of the route you want to record.
